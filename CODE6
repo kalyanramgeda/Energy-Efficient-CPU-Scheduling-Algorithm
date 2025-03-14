@@ -1,1 +1,25 @@
+// Green Energy-Aware Real-Time Scheduling (GEARS)
+#include <iostream>
+#include <vector>
+using namespace std;
 
+class Task {
+public:
+    int id, deadline, batteryLevel;
+    Task(int id, int deadline, int batteryLevel) : id(id), deadline(deadline), batteryLevel(batteryLevel) {}
+
+    void execute() {
+        if (batteryLevel < 20) {
+            cout << "Task " << id << " delayed due to low battery (" << batteryLevel << "%)\n";
+        } else {
+            cout << "Executing Task " << id << " before deadline " << deadline << " ms\n";
+        }
+    }
+};
+
+int main() {
+    vector<Task> tasks = { {1, 100, 50}, {2, 200, 15}, {3, 150, 30} };
+
+    for (auto &task : tasks) task.execute();
+    return 0;
+}
