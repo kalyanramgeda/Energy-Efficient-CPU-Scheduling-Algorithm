@@ -3,18 +3,18 @@ import random
 from collections import deque
 import copy
 
-# Class to represent each process
+# Process class to store details about each process
 class Process:
     def __init__(self, pid, arrival, burst, priority):
-        self.id = pid
-        self.arrival_time = arrival
-        self.burst_time = burst
-        self.priority = priority
+        self.id = pid                 # Process ID (e.g., "P1")
+        self.arrival_time = arrival  # Time at which process arrives
+        self.burst_time = burst      # Time required to complete the process
+        self.priority = priority     # Priority of the process (lower number = higher priority)
 
-# Function to draw Gantt charts for all algorithms in one figure
+# Function to draw combined Gantt chart for all scheduling algorithms
 def draw_combined_gantt_chart(all_timelines):
     fig, axs = plt.subplots(len(all_timelines), 1, figsize=(12, 2 * len(all_timelines)), sharex=True)
-    colors = {}  # To store unique colors for each process
+    colors = {}  # Dictionary to store unique colors for each process
     
     for i, (title, timeline) in enumerate(all_timelines.items()):
         ax = axs[i]
@@ -22,43 +22,42 @@ def draw_combined_gantt_chart(all_timelines):
         ax.set_ylabel("Processes")
         ax.grid(True)
 
-        # Get unique process labels
-        process_labels = sorted(set(label for _, _, label in timeline))
+        process_labels = sorted(set(label for _, _, label in timeline))  # Unique process labels
         y_ticks = []
         y_labels = []
 
-        # Plot bars for each process in the timeline
+        # Draw each process as a colored bar in the timeline
         for j, label in enumerate(process_labels):
-            y = j * 10
+            y = j * 10  # Vertical position
             y_ticks.append(y + 5)
             y_labels.append(label)
             for start, duration, lbl in timeline:
                 if lbl == label:
                     if lbl not in colors:
-                        colors[lbl] = "#%06x" % random.randint(0, 0xFFFFFF)  # Assign random color
+                        colors[lbl] = "#%06x" % random.randint(0, 0xFFFFFF)
                     ax.broken_barh([(start, duration)], (y, 9), facecolors=colors[lbl])
                     ax.text(start + duration / 2, y + 4.5, lbl, ha='center', va='center', color='white', fontsize=8)
 
-        # Set chart labels and limits
         ax.set_yticks(y_ticks)
         ax.set_yticklabels(y_labels)
         ax.set_ylim(0, len(process_labels) * 10)
-        ax.set_xlim(0, max(start + dur for start, dur, _ in timeline) + 2)
+        ax.set_xlim(0, max(start + dur for start, dur, _ in timeline) + 2)  # Auto-adjust x-axis
 
-    axs[-1].set_xlabel("Time")
+    axs[-1].set_xlabel("Time")  # Label x-axis at the bottom
     plt.tight_layout()
     plt.show()
 
-# First-Come, First-Served Scheduling
+# First Come First Serve Scheduling
 def fcfs(processes):
     time = 0
     timeline = []
+    # Sort by arrival time
     for p in sorted(processes, key=lambda x: x.arrival_time):
         if time < p.arrival_time:
-            time = p.arrival_time
+            time = p.arrival_time  # CPU is idle till process arrives
         start = time
         time += p.burst_time
-        timeline.append((start, p.burst_time, p.id))
+        timeline.append((start, p.burst_time, p.id))  # Log start, duration, and process ID
     return timeline
 
 # Shortest Job First (Non-preemptive)
@@ -69,21 +68,21 @@ def sjf(processes):
     processes.sort(key=lambda p: p.arrival_time)
     completed = []
     i = 0
+
     while len(completed) < len(processes):
-        # Add arrived processes to ready queue
+        # Move all processes that have arrived into the ready queue
         while i < len(processes) and processes[i].arrival_time <= time:
             ready.append(processes[i])
             i += 1
         if ready:
-            # Pick process with shortest burst time
-            ready.sort(key=lambda x: x.burst_time)
+            ready.sort(key=lambda x: x.burst_time)  # Pick shortest job
             p = ready.pop(0)
             start = time
             time += p.burst_time
             timeline.append((start, p.burst_time, p.id))
             completed.append(p)
         else:
-            time += 1  # No process ready, CPU is idle
+            time += 1  # No ready process, CPU idle
     return timeline
 
 # Round Robin Scheduling
@@ -91,7 +90,7 @@ def round_robin(processes, quantum):
     time = 0
     q = deque()
     timeline = []
-    remaining = {p.id: p.burst_time for p in processes}
+    remaining = {p.id: p.burst_time for p in processes}  # Track remaining burst time
     arrival_map = {p.id: p.arrival_time for p in processes}
     completed = set()
     processes.sort(key=lambda p: p.arrival_time)
@@ -99,7 +98,7 @@ def round_robin(processes, quantum):
     queue_set = set()
 
     while len(completed) < len(processes):
-        # Add processes that have arrived to the queue
+        # Enqueue new processes that have arrived
         while i < len(processes) and processes[i].arrival_time <= time:
             if processes[i].id not in queue_set:
                 q.append(processes[i])
@@ -109,30 +108,31 @@ def round_robin(processes, quantum):
         if q:
             p = q.popleft()
             queue_set.discard(p.id)
-            exec_time = min(quantum, remaining[p.id])
+            exec_time = min(quantum, remaining[p.id])  # Execute for min(quantum, remaining)
             start = time
             time += exec_time
             timeline.append((start, exec_time, p.id))
             remaining[p.id] -= exec_time
 
-            # Check if new processes arrived during execution
+            # Check if any new process has arrived during the current execution
             while i < len(processes) and processes[i].arrival_time <= time:
                 if processes[i].id not in queue_set and processes[i].id not in completed:
                     q.append(processes[i])
                     queue_set.add(processes[i].id)
                 i += 1
 
-            # Re-queue if not completed
+            # Requeue the process if it's not yet completed
             if remaining[p.id] > 0:
                 q.append(p)
                 queue_set.add(p.id)
             else:
                 completed.add(p.id)
         else:
-            time += 1  # CPU idle
+            time += 1  # CPU is idle
+
     return timeline
 
-# Non-preemptive Priority Scheduling
+# Priority Scheduling (Non-preemptive)
 def priority_scheduling(processes):
     time = 0
     timeline = []
@@ -142,28 +142,28 @@ def priority_scheduling(processes):
     i = 0
 
     while len(completed) < len(processes):
-        # Add arrived processes to ready queue
+        # Add processes to ready queue that have arrived
         while i < len(processes) and processes[i].arrival_time <= time:
             ready.append(processes[i])
             i += 1
         if ready:
-            # Select process with highest priority (lowest number)
-            ready.sort(key=lambda x: x.priority)
+            ready.sort(key=lambda x: x.priority)  # Select highest priority (lowest number)
             p = ready.pop(0)
             start = time
             time += p.burst_time
             timeline.append((start, p.burst_time, p.id))
             completed.append(p)
         else:
-            time += 1  # CPU idle
+            time += 1  # Idle time
+
     return timeline
 
-# Main driver function
+# Main function to input process data and run all algorithms
 def main():
     n = int(input("Enter number of processes: "))
     base_processes = []
 
-    # Get process input from user
+    # Collect process details
     for _ in range(n):
         pid = input("Enter Process ID (e.g., P1): ")
         arrival = int(input(f"Arrival Time for {pid}: "))
@@ -173,7 +173,7 @@ def main():
 
     quantum = int(input("Enter Time Quantum for Round Robin: "))
 
-    # Run all algorithms and store their timelines
+    # Run all scheduling algorithms on copies of the original process list
     all_timelines = {
         "FCFS": fcfs(copy.deepcopy(base_processes)),
         "SJF": sjf(copy.deepcopy(base_processes)),
@@ -181,8 +181,9 @@ def main():
         "Priority": priority_scheduling(copy.deepcopy(base_processes))
     }
 
-    # Display all Gantt charts
+    # Draw all Gantt charts in one figure
     draw_combined_gantt_chart(all_timelines)
 
+# Entry point
 if __name__ == "__main__":
     main()
