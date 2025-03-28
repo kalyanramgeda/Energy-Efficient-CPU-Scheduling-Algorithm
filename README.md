@@ -1,31 +1,27 @@
-# 🔄 CPU Scheduling Visualizer
+# 🧠 CPU Scheduling Visualizer (Python + Matplotlib)
 
-A Python-based simulator that demonstrates **four fundamental CPU scheduling algorithms** and visualizes them using Gantt Charts. Perfect for students, educators, or anyone looking to understand process scheduling in Operating Systems.
+A Python-based visualization tool for classic CPU scheduling algorithms. This tool helps students, developers, and educators understand how different scheduling strategies affect process execution.
 
----
+![Gantt Chart Sample](https://via.placeholder.com/800x300?text=Sample+Gantt+Chart)
 
-## ✨ What’s Inside?
+## 🚀 Features
 
-🧠 **Algorithms Implemented**:
-- 🟦 First-Come, First-Served (FCFS)
-- 🟩 Shortest Job First (SJF)
-- 🟧 Round Robin (RR)
-- 🟥 Priority Scheduling
-
-📊 **Visual Output**:
-- Clean, color-coded Gantt charts for each algorithm
-- Unified timeline for easier comparison
-- Process IDs displayed on bars for clarity
-
-🛠️ **User Input Driven**:
-- Custom process details: ID, Arrival Time, Burst Time, Priority
-- Set your own Time Quantum for Round Robin
+- ✅ **First Come First Served (FCFS)**
+- ✅ **Shortest Job First (SJF) - Non-Preemptive**
+- ✅ **Round Robin (RR) with Time Quantum**
+- ✅ **Priority Scheduling - Non-Preemptive**
+- 📊 **Gantt Chart Visualization** using `matplotlib`
+- 🧪 **Custom Process Input**: Arrival Time, Burst Time, and Priority
+- 💡 Simple, beginner-friendly code with clear structure
 
 ---
 
-## 🚀 Getting Started
+## 📌 Prerequisites
 
-### 📦 Prerequisites
-Make sure you have Python installed. Then install `matplotlib`:
+- Python 3.x
+- `matplotlib` library
+
+Install the required library using pip:
+
 ```bash
 pip install matplotlib
